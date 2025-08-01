@@ -1,0 +1,15 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.ipynb_checkpoints
+
+# Model files
+*.pt
+*.pth
+
+# Data
+data/
+datasets/
+
+# OS files
+.DS_Store
