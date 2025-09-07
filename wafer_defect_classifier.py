@@ -7,9 +7,10 @@ import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay
+from visualize_gradcam import visualize_gradcam
 import matplotlib.pyplot as plt
 
-# ========== PARAMETERS ==========
+#PARAMETERS
 DATA_DIR = "wafer_defect_dataset"
 BATCH_SIZE = 32
 EPOCHS = 25
@@ -17,14 +18,12 @@ LR = 0.001
 IMAGE_SIZE = (128, 128)
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# ========== TRANSFORMS ==========
 transform = transforms.Compose([
     transforms.Resize(IMAGE_SIZE),
     transforms.ToTensor(),
     transforms.Normalize((0.5,), (0.5,))
 ])
 
-# ========== LOAD DATA ==========
 train_dataset = datasets.ImageFolder(os.path.join(DATA_DIR, 'train'), transform=transform)
 val_dataset = datasets.ImageFolder(os.path.join(DATA_DIR, 'val'), transform=transform)
 
@@ -33,8 +32,6 @@ val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False)
 
 CLASS_NAMES = train_dataset.classes
 NUM_CLASSES = len(CLASS_NAMES)
-
-# ========== CNN MODEL ==========
 class WaferCNN(nn.Module):
     def __init__(self, num_classes):
         super(WaferCNN, self).__init__()
@@ -54,7 +51,6 @@ class WaferCNN(nn.Module):
         x = self.fc2(x)
         return x
 
-# ========== TRAINING ==========
 model = WaferCNN(NUM_CLASSES).to(DEVICE)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LR)
@@ -75,7 +71,6 @@ for epoch in range(EPOCHS):
 
     print(f"[Epoch {epoch+1}] Loss: {running_loss / len(train_loader):.4f}")
 
-# ========== VALIDATION ==========
 model.eval()
 correct, total = 0, 0
 all_preds, all_labels = [], []
@@ -93,16 +88,10 @@ with torch.no_grad():
 print(f"Validation Accuracy: {100 * correct / total:.2f}%")
 print(classification_report(all_labels, all_preds, target_names=CLASS_NAMES))
 
-# Compute confusion matrix
 cm = confusion_matrix(all_labels, all_preds)
-
-# Normalize by row (true labels) → percentages
-cm_percent = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] * 100  # Each row sums to 100%
-
-# Round for cleaner display (optional)
+cm_percent = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis] * 100  
 cm_percent_rounded = np.round(cm_percent, decimals=1)
 
-# Display as heatmap with percentages
 fig, ax = plt.subplots(figsize=(10, 8))
 disp = ConfusionMatrixDisplay(confusion_matrix=cm_percent_rounded, display_labels=CLASS_NAMES)
 disp.plot(
@@ -115,3 +104,15 @@ disp.plot(
 plt.title("Confusion Matrix (% per True Class)")
 plt.tight_layout()
 plt.show()
+
+target_layer = model.conv3
+img_path = "wafer_defect_dataset/test/Center/center_1732.jpg"
+
+visualize_gradcam(
+    model=model,
+    target_layer=target_layer,
+    img_path=img_path,
+    class_names=CLASS_NAMES,
+    transform=transform,
+    device=DEVICE
+)
