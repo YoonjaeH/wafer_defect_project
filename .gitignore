@@ -10,6 +10,7 @@ __pycache__/
 # Data
 data/
 datasets/
+wafer_defect_dataset/
 
 # OS files
 .DS_Store

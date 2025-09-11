@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, render_template
-import torch
 from wafer_cnn import WaferCNN
 from utils import transform_image, get_prediction, generate_gradcam, CLASS_NAMES
+
+import torch
 
 app = Flask(__name__)
 

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wafer Defect Classifier</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Wafer Defect Classifier</h1>
+    <p>Upload an image of a semiconductor wafer to classify its defect type.</p>
+    
+    <div class="card">
+        <input type="file" id="imageUpload" accept="image/*">
+        <button id="predictBtn">Classify</button>
+    </div>
+
+    <div id="results" class="hidden">
+        <h2>Results</h2>
+        <div class="result-display">
+            <div class="prediction">
+                <strong>Predicted Defect:</strong>
+                <p id="predictionText">...</p>
+            </div>
+            <div class="visualization">
+                <strong>Grad-CAM Heatmap:</strong>
+                <img id="gradcamImage" src="" alt="Grad-CAM Visualization">
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
